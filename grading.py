@@ -5,10 +5,9 @@ from typing import Any
 
 import numpy as np
 
-_progress: dict[str, bool] = {}  # question key -> answered correctly, for check_progress()
+_progress: dict[str, bool] = {}
 
 
-# Target states for the "build this state" puzzles (vector, how to print it)
 TARGET_STATES: dict[str, tuple[Any, str]] = {
     "minus": (np.array([1, -1]) / np.sqrt(2), "|−⟩ = (|0⟩ − |1⟩)/√2"),
     "six": (np.eye(8)[6], "|110⟩ (6 in binary)"),
@@ -127,9 +126,9 @@ def check_remeasure(prediction: float | None):
 def check_qiskit_patterns(steps: list[str] | None):
     if steps is None or len(steps) != 4 or not all(isinstance(step, str) for step in steps):
         return print("Fill in the blank first! Your answer should be a list of 4 steps.")
-    expected = ["map", "optim", "execut", "post"]  # word stems, so "optimize" and "optimise" both count
+    expected = ["map", "optim", "execut", "post"]
     correct = all(stem in step.lower() for stem, step in zip(expected, steps))
-    _record("patterns", correct, "Map → Optimize → Execute → Post-process." if correct
+    _record("patterns", correct, "Map -> Optimize -> Execute -> Post-process." if correct
             else "Check the spelling and the order of your steps.")
 
 
