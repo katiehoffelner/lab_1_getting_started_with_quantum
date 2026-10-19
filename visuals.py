@@ -4,7 +4,6 @@ from io import BytesIO
 
 import ipywidgets as widgets
 import matplotlib.pyplot as plt
-import numpy as np
 from IPython.display import display
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import Pauli, Statevector
@@ -51,24 +50,6 @@ def show(qc: QuantumCircuit):
     else:
         display(plot_bloch_multivector(state))
         display(plot_histogram(state.probabilities_dict(decimals=3), title="Chance of measuring..."))
-
-
-def qubit_explorer():
-    """Two sliders: one sets the odds of measuring 0 or 1, the other sets the phase."""
-    odds = widgets.IntSlider(value=0, min=0, max=180, step=5, description="Tilt (°)")
-    phase = widgets.IntSlider(value=0, min=0, max=360, step=5, description="Phase (°)")
-    image = widgets.Image(format="png")
-
-    def update(_=None):
-        qc = QuantumCircuit(1)
-        qc.ry(np.radians(odds.value), 0)
-        qc.p(np.radians(phase.value), 0)
-        image.value = _png(_qubit_figure(Statevector(qc)))
-
-    odds.observe(update, names="value")
-    phase.observe(update, names="value")
-    update()
-    display(widgets.VBox([odds, phase, image]))
 
 
 def gate_playground():
