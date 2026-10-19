@@ -8,55 +8,9 @@ import numpy as np
 _progress: dict[str, bool] = {}  # question key -> answered correctly, for check_progress()
 
 
-def check_binary(num: int, num_bits: int | None, bitstring: str):
-    if num_bits is None or "___" in bitstring:
-        return print("Fill in the blanks first!")
-    if set(bitstring) - {"0", "1"}:
-        return print("Your bitstring should only contain 0s and 1s.")
-    if len(bitstring) != num_bits:  # some sort of mismatch
-        # is the num_bits wrong?
-        if len(bitstring) == num.bit_length():
-            return print("Your num_bits isn't quite right.")
-        # the bitstring must be wrong
-        return print("Your bitstring isn't quite right, it should be " + str(num_bits) + " bits long.")
-
-    try:
-        parsed = int(bitstring, 2)
-    except:
-        return print("Your bitstring isn't quite right. It should only contain 0s and 1s.")
-    if parsed != num:
-        return print("Your bitstring isn't quite right. In decimal, yours evaluates to " + str(parsed) + ", but it should evaluate to " + str(num) + ".")
-    if num_bits != num.bit_length():
-        return print("Your bitstring is right, but can you do it with fewer bits? Try removing the leading 0s.")
-
-    return print(f"✅ Correct! {num} = {bitstring} ({num_bits} bits long).")
-
-
-def check_basis_states(ket_00: np.ndarray | None,  ket_01: np.ndarray | None, ket_10: np.ndarray | None, ket_11: np.ndarray | None):
-    if ket_00 is None or ket_01 is None or ket_10 is None or ket_11 is None:
-        return print("Fill in the blanks first!")
-
-    # Accept both flat [0, 1, 0, 0] and column [[0], [1], [0], [0]] vectors
-    ket_00, ket_01, ket_10, ket_11 = (np.ravel(k)
-                                      for k in (ket_00, ket_01, ket_10, ket_11))
-    if any(k.shape != (4,) for k in (ket_00, ket_01, ket_10, ket_11)):
-        return print("❌ Each two-qubit state should be a vector with 4 entries.")
-
-    if not np.allclose(ket_00, np.array([1, 0, 0, 0])):
-        return print("❌ Your |00⟩ state isn't quite right.")
-    if not np.allclose(ket_01, np.array([0, 1, 0, 0])):
-        return print("❌ Your |01⟩ state isn't quite right.")
-    if not np.allclose(ket_10, np.array([0, 0, 1, 0])):
-        return print("❌ Your |10⟩ state isn't quite right.")
-    if not np.allclose(ket_11, np.array([0, 0, 0, 1])):
-        return print("❌ Your |11⟩ state isn't quite right.")
-    return print("✅ Correct! Your basis states are all correct.")
-
-
 # Target states for the "build this state" puzzles (vector, how to print it)
 TARGET_STATES: dict[str, tuple[Any, str]] = {
     "minus": (np.array([1, -1]) / np.sqrt(2), "|−⟩ = (|0⟩ − |1⟩)/√2"),
-    "bell": (np.array([1, 0, 0, 1]) / np.sqrt(2), "(|00⟩ + |11⟩)/√2"),
     "six": (np.eye(8)[6], "|110⟩ (6 in binary)"),
 }
 
@@ -104,18 +58,8 @@ def check_state(qc, target: str):
 # ---------------------------------------------------------------------------
 # End-of-module questions. Results are recorded so check_progress() can sum up.
 # ---------------------------------------------------------------------------
-QUESTION_KEYS = [f"tf{i}" for i in range(1, 10)] + [
-    "bit_vs_qubit", "measurement", "state_six", "patterns", "superposed_adder", "toffoli"]
-
-
-def _record(key: str, correct: bool, message: str):
-    _progress[key] = correct
-    print(("✅ Correct! " if correct else "❌ Not quite. ") + message)
-
-
 TRUE_FALSE_ANSWERS = {
     1: (True, "A classical bit is always exactly 0 or 1."),
-    2: (False, "Entangled qubits are linked: measuring one tells you about the other."),
     3: (False, "Quantum gates are unitary, so they can always be undone."),
     4: (False, "In Qiskit, q0 is the rightmost (least significant) qubit."),
     5: (False, "If the state is a superposition, repeated runs give random outcomes."),
@@ -124,6 +68,15 @@ TRUE_FALSE_ANSWERS = {
     8: (False, "N bits have 2^N possible states, not 2N. For example, 3 bits give 8 states."),
     9: (True, "The probability of measuring |i⟩ is |c_i|²."),
 }
+
+
+QUESTION_KEYS = [f"tf{i}" for i in TRUE_FALSE_ANSWERS] + [
+    "bit_vs_qubit", "measurement", "state_six", "patterns", "superposed_adder", "toffoli"]
+
+
+def _record(key: str, correct: bool, message: str):
+    _progress[key] = correct
+    print(("✅ Correct! " if correct else "❌ Not quite. ") + message)
 
 
 def check_true_false(question: int, answer: bool | None):
